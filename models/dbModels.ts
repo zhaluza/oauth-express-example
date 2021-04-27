@@ -248,3 +248,21 @@ export const saveAuthorizationCode = async (
 // export const revokeAuthorizationCode = async () => {};
 
 export const verifyScope = async () => {};
+
+export const createUser = async (user: IOAuthUser) => {
+  try {
+    const newUser = await OAuthUser.create(user);
+    console.log('user created: ', newUser);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const createClient = async (client: IOAuthClient) => {
+  try {
+    const newClient = await OAuthClient.create(client);
+    console.log('client created: ', newClient);
+  } catch (err) {
+    console.error(err);
+  }
+};
