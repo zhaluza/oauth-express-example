@@ -19,6 +19,14 @@ Everything else:
 - [Mongoose](https://mongoosejs.com/)
 - [TypeScript](https://www.typescriptlang.org/)
 
+Tips on making Mongoose models TypeScript compatible:
+[Hackernoon post](https://hackernoon.com/how-to-link-mongoose-and-typescript-for-a-single-source-of-truth-94o3uqc)
+_You can also try using the library
+[Typegoose](https://www.npmjs.com/package/@typegoose/typegoose), although it
+does require you to install an earlier version of Mongoose (5.10.18, from late
+2020). I had a smoother experience with Mongoose, although I can see why people
+would prefer to define their models once with Typegoose!_
+
 ## Instructions
 
 ### Setup
