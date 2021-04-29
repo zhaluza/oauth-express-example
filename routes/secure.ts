@@ -4,6 +4,7 @@ import DebugControl from '../utils/debug';
 const router = Router();
 
 router.get('/', (req, res) => {
+  console.log('/secure');
   // Successfully reached if we hit this
   DebugControl.log.variable({
     name: 'res.locals.oauth.token',
