@@ -15,6 +15,7 @@ OAuth:
 
 Everything else:
 
+- [Express](http://expressjs.com/)
 - [Mongoose](https://mongoosejs.com/)
 - [TypeScript](https://www.typescriptlang.org/)
 
