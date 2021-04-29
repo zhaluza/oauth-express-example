@@ -6,6 +6,7 @@ import initializeDb from './db';
 import authRouter from './routes/auth';
 import clientRouter from './routes/client';
 import secureRouter from './routes/secure';
+import userRouter from './routes/user';
 
 const app = express();
 const PORT = process.env.PORT;
@@ -27,6 +28,7 @@ app.use(
   oauthServer.authenticate(),
   secureRouter
 );
+app.use('/user', userRouter);
 
 app.use('/', (req: Request, res: Response) => res.redirect('/client'));
 
