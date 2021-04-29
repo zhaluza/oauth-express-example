@@ -1,4 +1,10 @@
-import mongoose, { model, Schema, Document, Model } from 'mongoose';
+import mongoose, {
+  model,
+  Schema,
+  Document,
+  Model,
+  isValidObjectId,
+} from 'mongoose';
 
 // Schema definitions
 interface IObject {
@@ -167,9 +173,38 @@ export const getClient = async (clientId: string, clientSecret: string) => {
  * Get refresh token
  */
 
-export const getRefreshToken = (refreshToken: string) => {
-  console.log('getRefreshToken');
-  return OAuthToken.findOne({ refreshToken }).lean();
+export const getRefreshToken = async (refreshTokenString: string) => {
+  console.log('getRefreshToken', refreshTokenString);
+  const token = await OAuthToken.findOne({ refreshToken: refreshTokenString });
+  if (!token) return;
+  // add client id as property to token
+
+  const {
+    accessToken,
+    accessTokenExpiresAt,
+    client,
+    clientId,
+    refreshToken,
+    refreshTokenExpiresAt,
+    userId,
+    user,
+  } = token;
+
+  const formattedToken: IOAuthToken = {
+    accessToken,
+    accessTokenExpiresAt,
+    client,
+    clientId,
+    refreshToken,
+    refreshTokenExpiresAt,
+    userId,
+    user,
+  };
+
+  formattedToken.client.id = formattedToken.client._id.toString();
+
+  console.log('formatted token: ', formattedToken);
+  return formattedToken;
 };
 
 export const getUser = async (username: string, password: string) => {
@@ -195,7 +230,7 @@ export const saveToken = async (
   console.log('saveToken');
   const accessToken = new OAuthToken({
     accessToken: token.accessToken,
-    accessTokenExpiresOn: token.accessTokenExpiresAt,
+    accessTokenExpiresAt: token.accessTokenExpiresAt,
     client,
     clientId: client.clientId,
     refreshToken: token.refreshToken,
@@ -218,16 +253,20 @@ export const saveAuthorizationCode = async (
   client: IOAuthClientDoc,
   user: IOAuthUserDoc
 ) => {
-  console.log(`saveAuthorizationCode: ${code}`);
+  console.log(`saveAuthorizationCode: ${JSON.stringify(code)}`);
+  // TODO: Document should be deleted when it expires
+  // FIXME: Entire user and client should not be saved to code doc
   const authCode = new OAuthCode({
     authorizationCode: code.authorizationCode,
     expiresAt: code.expiresAt,
     redirectUri: code.redirectUri,
     scope: code.scope,
     clientId: client.id,
+    client,
     userId: user.id,
+    user,
   });
-
+  authCode.client.id = client.id;
   try {
     const savedAuthCode = await authCode.save();
     console.log({ savedAuthCode });
@@ -237,17 +276,59 @@ export const saveAuthorizationCode = async (
   }
 };
 
-// // TODO: Finish implementing
-// export const getAuthorizationCode: (
-//   authorizationCode: string
-// ) => Promise<AuthorizationCode | Falsey> = (authorizationCode) => {
-//   console.log({ authorizationCode });
-//   // fetch data stored from code
-// };
+export const revokeToken = (token: IOAuthToken) => {
+  console.log('revoke token: ', token);
+  if (!token) return false;
+  return true;
+};
 
-// export const revokeAuthorizationCode = async () => {};
+export const getAuthorizationCode = async (authorizationCode: string) => {
+  /* this is where we fetch the stored data from the code */
+  console.log('get authorization code: ', authorizationCode);
+  try {
+    const authCodeDb = await OAuthCode.findOne({ authorizationCode });
+    if (!authCodeDb) return;
 
-export const verifyScope = async () => {};
+    // Recasting our return object to have a client.id property that the oauth library will recognize
+    const formattedAuthCode: IOAuthCode = {
+      authorizationCode: authCodeDb.authorizationCode,
+      expiresAt: authCodeDb.expiresAt,
+      redirectUri: authCodeDb.redirectUri,
+      scope: authCodeDb.scope,
+      clientId: authCodeDb.clientId,
+      client: authCodeDb.client,
+      userId: authCodeDb.userId,
+      user: authCodeDb.user,
+    };
+
+    formattedAuthCode.client.id = formattedAuthCode.client._id.toString();
+    console.log('authorization code sent', formattedAuthCode);
+
+    return formattedAuthCode;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const revokeAuthorizationCode = async (authCode: IOAuthCode) => {
+  console.log('revoke authorization code: ', authCode);
+  const deletedAuthCode = await OAuthCode.deleteMany({
+    authorizationCode: authCode.authorizationCode,
+  });
+  if (deletedAuthCode) {
+    console.log('authorization code deleted: ', deletedAuthCode);
+  }
+  return !!deletedAuthCode;
+};
+
+export const verifyScope = (token: string, scope: any) => {
+  // TODO: fill this out, currently just returning true
+  console.log('verifying scope: ', token, scope);
+  const userHasAccess = true;
+  return userHasAccess;
+};
+
+// Extra methods
 
 export const createUser = async (user: IOAuthUser) => {
   try {
@@ -262,6 +343,16 @@ export const createClient = async (client: IOAuthClient) => {
   try {
     const newClient = await OAuthClient.create(client);
     console.log('client created: ', newClient);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const deleteAllCodesAndTokens = async () => {
+  try {
+    await OAuthCode.deleteMany({});
+    await OAuthToken.deleteMany({});
+    console.log('successfully deleted existing codes and tokens');
   } catch (err) {
     console.error(err);
   }
