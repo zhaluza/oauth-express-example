@@ -2,7 +2,7 @@
 
 TypeScript & MongoDB implementation of
 [14gasher's extremely informative OAuth example](https://github.com/14gasher/oauth-example).
-(Read the Readme in this repo for a much more detailed walkthrough of the OAuth
+(Read the Readme in that repo for a much more detailed walkthrough of the OAuth
 flow for this app)
 
 ## Libraries used
