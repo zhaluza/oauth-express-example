@@ -1,6 +1,6 @@
 import path from 'path';
 import { Router } from 'express';
-import { createClient } from '../models/dbModels';
+import { createClient } from '../middlewares';
 
 const router = Router();
 router.get('/', (req, res) =>

@@ -1,5 +1,5 @@
 import OAuthServer from 'express-oauth-server';
-import * as model from './models/dbModels';
+import * as model from './models';
 
 export default new OAuthServer({
   // NOTE: oauth2-server and mongoose have conflicting types

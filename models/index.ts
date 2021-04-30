@@ -43,7 +43,7 @@ const OAuthTokenSchemaFields: Record<keyof IOAuthToken, any> = {
 
 const OAuthTokenSchema = new Schema(OAuthTokenSchemaFields);
 
-const OAuthToken = model<IOAuthTokenDoc, IOAuthTokenModel>(
+export const OAuthToken = model<IOAuthTokenDoc, IOAuthTokenModel>(
   'oauthToken',
   OAuthTokenSchema
 );
@@ -80,12 +80,12 @@ const OAuthCodeSchemaFields: Record<keyof IOAuthCode, any> = {
 
 const OAuthCodeSchema = new Schema(OAuthCodeSchemaFields);
 
-const OAuthCode = model<IOAuthCodeDoc, IOAuthCodeModel>(
+export const OAuthCode = model<IOAuthCodeDoc, IOAuthCodeModel>(
   'oauthCode',
   OAuthCodeSchema
 );
 
-interface IOAuthClient {
+export interface IOAuthClient {
   clientId: string;
   clientSecret: string;
   redirectUris: any[];
@@ -109,12 +109,12 @@ const OAuthClientSchemaFields: Record<keyof IOAuthClient, any> = {
 
 const OAuthClientSchema = new Schema(OAuthClientSchemaFields);
 
-const OAuthClient = model<IOAuthClientDoc, IOAuthClientModel>(
+export const OAuthClient = model<IOAuthClientDoc, IOAuthClientModel>(
   'oauthClient',
   OAuthClientSchema
 );
 
-interface IOAuthUser {
+export interface IOAuthUser {
   email: string;
   firstName: string;
   lastName: string;
@@ -140,7 +140,7 @@ const OAuthUserSchemaFields: Record<keyof IOAuthUser, any> = {
 
 const OAuthUserSchema = new Schema(OAuthUserSchemaFields);
 
-const OAuthUser = model<IOAuthUserDoc, IOAuthUserModel>(
+export const OAuthUser = model<IOAuthUserDoc, IOAuthUserModel>(
   'oauthUser',
   OAuthUserSchema
 );
@@ -326,34 +326,4 @@ export const verifyScope = (token: string, scope: any) => {
   console.log('verifying scope: ', token, scope);
   const userHasAccess = true;
   return userHasAccess;
-};
-
-// Extra methods
-
-export const createUser = async (user: IOAuthUser) => {
-  try {
-    const newUser = await OAuthUser.create(user);
-    console.log('user created: ', newUser);
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-export const createClient = async (client: IOAuthClient) => {
-  try {
-    const newClient = await OAuthClient.create(client);
-    console.log('client created: ', newClient);
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-export const deleteAllCodesAndTokens = async () => {
-  try {
-    await OAuthCode.deleteMany({});
-    await OAuthToken.deleteMany({});
-    console.log('successfully deleted existing codes and tokens');
-  } catch (err) {
-    console.error(err);
-  }
 };
