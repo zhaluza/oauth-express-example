@@ -2,7 +2,8 @@ import path from 'path';
 import { Router, Request as ExpressRequest } from 'express';
 import oauthServer from '../oauthServer';
 import DebugControl from '../utils/debug';
-import { getUser, deleteAllCodesAndTokens } from '../models/dbModels';
+import { getUser } from '../models';
+import { deleteAllCodesAndTokens, getRedirectUrl } from '../middlewares';
 
 const router = Router();
 
@@ -53,15 +54,16 @@ router.post(
 
 router.post(
   '/token',
-  (req, res, next) => {
+  async (req, res, next) => {
     DebugControl.log.flow('Token');
-    console.log(req.body, req.query);
-    // TODO: attach the redirect uri to the request! (add a middleware)
-    req.body.redirect_uri = 'http://localhost:8000/client/app';
+    console.log('request for token call: ', req.body, req.query);
+    req.body.redirect_uri = await getRedirectUrl(req.body.code);
+    console.log('updated req.body: ', req.body);
     return next();
   },
   oauthServer.token({
     requireClientAuthentication: {
+      // TODO: add logic
       // Does the client need to provide a client secret?
       //   authorization_code: false,
     },
